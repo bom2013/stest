@@ -36,12 +36,12 @@ void stest::RunTests()
 		if (fails.empty())
 			printf("All tests pass\n");
 		else
-			printf("Fail! Not all tests pass (%lu test fails(%.2f%%))\n", fails.size(), (static_cast<double>(fails.size()) / (tests.size())) * 100);
+			printf("Fail! Not all tests pass (%lu test fails(%.2f%% success rate))\n\n", fails.size(), 100-((static_cast<double>(fails.size()) / (tests.size())) * 100));
 
 		for (auto fail : fails)
 		{
-			printf("\n------------------------------\n");
-			printf("In test \'%s\'(Assert #%d):\n\t%s\n", fail.first->name(), fail.first->getNumberOfAssertsDone(), fail.second.what());
+			printf("------------------------------\n");
+			printf("In test \'%s\':\n\t%s\n", fail.first->name(), fail.second.what());
 		}
 	}
 	else

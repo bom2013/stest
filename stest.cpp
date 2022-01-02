@@ -41,7 +41,7 @@ void stest::RunTests()
 		for (auto fail : fails)
 		{
 			printf("\n------------------------------\n");
-			printf("In test \'%s\':\n\t%s\n", fail.first->name(), fail.second.what());
+			printf("In test \'%s\'(Assert #%d):\n\t%s\n", fail.first->name(), fail.first->getNumberOfAssertsDone(), fail.second.what());
 		}
 	}
 	else

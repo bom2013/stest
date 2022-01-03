@@ -1,4 +1,6 @@
-#pragma once
+#ifndef STEST_H
+#define STEST_H
+
 #include <vector>
 #include <cstdio>
 #include <string>
@@ -45,6 +47,7 @@ namespace stest
 #define ATTACH(a, b) a##b
 #define VAR_TO_STRING(a) std::to_string(a)
 #define TO_STRING(a) std::string(a)
+#define ABS(a) ((a) > 0 ? (a) : -(a))
 
 // main macros
 #define DEFINE_TEST(testName)                                           \
@@ -61,6 +64,7 @@ namespace stest
 #define NO_ARGS_FAIL_EXCEPTION(assertName, message) stest::TestFailException(VAR_TO_STRING(__LINE__) + TO_STRING(": ") + assertName + TO_STRING("(): ") + TO_STRING(message))
 #define ONE_ARGS_FAIL_EXCEPTION(assertName, a, message) stest::TestFailException(VAR_TO_STRING(__LINE__) + TO_STRING(": ") + assertName + TO_STRING("(") + TO_STRING(#a) + TO_STRING("): ") + TO_STRING(message))
 #define OPERATOR_FAIL_EXCEPTION(operatorName, a, b, oppositeOperator) stest::TestFailException(VAR_TO_STRING(__LINE__) + TO_STRING(": ") + TO_STRING(operatorName) + TO_STRING("(") + TO_STRING(#a) + TO_STRING(", ") + TO_STRING(#b) + TO_STRING("): \'") + VAR_TO_STRING(a) + TO_STRING("\' ") + TO_STRING(oppositeOperator) + TO_STRING(" \'") + VAR_TO_STRING(b) + TO_STRING("\'"))
+#define STR_OPERATOR_FAIL_EXCEPTION(operatorName, a, b, oppositeOperator) stest::TestFailException(VAR_TO_STRING(__LINE__) + TO_STRING(": ") + TO_STRING(operatorName) + TO_STRING("(") + TO_STRING(#a) + TO_STRING(", ") + TO_STRING(#b) + TO_STRING("): \'") + TO_STRING(a) + TO_STRING("\' ") + TO_STRING(oppositeOperator) + TO_STRING(" \'") + TO_STRING(b) + TO_STRING("\'"))
 
 #define OPERATOR_ASSERT(a, b, oppositeOperator, assertName)                 \
     if ((a)oppositeOperator(b))                                             \
@@ -68,8 +72,13 @@ namespace stest
         throw OPERATOR_FAIL_EXCEPTION(assertName, a, b, #oppositeOperator); \
     }
 
-// logical asserts
+#define STR_OPERATOR_ASSERT(a, b, oppositeOperator, assertName)                 \
+    if ((TO_STRING((a)))oppositeOperator(TO_STRING((b))))                       \
+    {                                                                           \
+        throw STR_OPERATOR_FAIL_EXCEPTION(assertName, a, b, #oppositeOperator); \
+    }
 
+// logical asserts
 #define FAIL() throw stest::TestFailException("FAIL")
 
 #define ASSERT_EQ(a, b) OPERATOR_ASSERT(a, b, !=, "ASSERT_EQ")
@@ -90,13 +99,25 @@ namespace stest
 
 #define ASSERT(a) ASSERT_TRUE(a)
 
-#define ASSERT_GREATER(a, b) OPERATOR_ASSERT(a, b, <=, "ASSERT_GREATER")
+#define ASSERT_G(a, b) OPERATOR_ASSERT(a, b, <=, "ASSERT_GREATER")
 
-#define ASSERT_GREATER_EQUAL(a, b) OPERATOR_ASSERT(a, b, <, "ASSERT_GREATER_EQUAL")
+#define ASSERT_GE(a, b) OPERATOR_ASSERT(a, b, <, "ASSERT_GREATER_EQUAL")
 
-#define ASSERT_LESS(a, b) OPERATOR_ASSERT(a, b, >=, "ASSERT_LESS")
+#define ASSERT_L(a, b) OPERATOR_ASSERT(a, b, >=, "ASSERT_LESS")
 
-#define ASSERT_LESS_EQUAL(a, b) OPERATOR_ASSERT(a, b, >, "ASSERT_LESS_EQUAL")
+#define ASSERT_LE(a, b) OPERATOR_ASSERT(a, b, >, "ASSERT_LESS_EQUAL")
+
+// string asserts
+#define ASSERT_STR_EQ(a, b) STR_OPERATOR_ASSERT(a, b, !=, "ASSERT_STR_EQ")
+
+#define ASSERT_STR_NEQ(a, b) STR_OPERATOR_ASSERT(a, b, ==, "ASSERT_STR_NEQ")
+
+// float point assert
+#define ASSERT_NEAR(a, b, eps)                                                                                                                                                                                                                                                                                                                                                                   \
+    if (ABS((a) - (b)) > (eps))                                                                                                                                                                                                                                                                                                                                                                  \
+    {                                                                                                                                                                                                                                                                                                                                                                                            \
+        throw stest::TestFailException(VAR_TO_STRING(__LINE__) + TO_STRING(": ") + TO_STRING("ASSERT_NEAR") + TO_STRING("(") + TO_STRING(#a) + TO_STRING(", ") + TO_STRING(#b) + TO_STRING(", ") + TO_STRING(#eps) + TO_STRING("): ABS(") + VAR_TO_STRING(a) + TO_STRING(" - ") + VAR_TO_STRING(b) + TO_STRING(") = ") + VAR_TO_STRING(ABS((a) - (b))) + TO_STRING(" > ") + VAR_TO_STRING(eps)); \
+    }
 
 // some interesting asserts
 #define ASSERT_EXCEPTION(code, exceptionType)                                       \
@@ -117,6 +138,20 @@ namespace stest
         throw NO_ARGS_FAIL_EXCEPTION("ASSERT_EXCEPTION", "Other exception thrown"); \
     }
 
+#define ASSERT_ANY_EXCEPTION(code)                                                  \
+    try                                                                             \
+    {                                                                               \
+        code;                                                                       \
+        throw NO_ARGS_FAIL_EXCEPTION("ASSERT_ANY_EXCEPTION", "No exception throw"); \
+    }                                                                               \
+    catch (stest::TestFailException tfe)                                            \
+    {                                                                               \
+        throw tfe;                                                                  \
+    }                                                                               \
+    catch (...)                                                                     \
+    {                                                                               \
+    }
+
 #define ASSERT_NO_EXCEPTION(code)                                                       \
     try                                                                                 \
     {                                                                                   \
@@ -127,7 +162,8 @@ namespace stest
         throw NO_ARGS_FAIL_EXCEPTION("ASSERT_NO_EXCEPTION", "An exception was thrown"); \
     }
 
-// TODO: asserts
+#endif
+
 // TODO: anonymos namespace?
 // TODO: Init
 // TODO: line number

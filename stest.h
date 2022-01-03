@@ -45,8 +45,6 @@ namespace stest
 
 // some help macros for internal use
 #define ATTACH(a, b) a##b
-#define VAR_TO_STRING(a) std::to_string(a)
-#define TO_STRING(a) std::string(a)
 #define ABS(a) ((a) > 0 ? (a) : -(a))
 
 // main macros
@@ -61,10 +59,11 @@ namespace stest
 #define RUN_ALL_TESTS() stest::RunTests()
 
 // Asserts macros
-#define NO_ARGS_FAIL_EXCEPTION(assertName, message) stest::TestFailException(VAR_TO_STRING(__LINE__) + TO_STRING(": ") + assertName + TO_STRING("(): ") + TO_STRING(message))
-#define ONE_ARGS_FAIL_EXCEPTION(assertName, a, message) stest::TestFailException(VAR_TO_STRING(__LINE__) + TO_STRING(": ") + assertName + TO_STRING("(") + TO_STRING(#a) + TO_STRING("): ") + TO_STRING(message))
-#define OPERATOR_FAIL_EXCEPTION(operatorName, a, b, oppositeOperator) stest::TestFailException(VAR_TO_STRING(__LINE__) + TO_STRING(": ") + TO_STRING(operatorName) + TO_STRING("(") + TO_STRING(#a) + TO_STRING(", ") + TO_STRING(#b) + TO_STRING("): \'") + VAR_TO_STRING(a) + TO_STRING("\' ") + TO_STRING(oppositeOperator) + TO_STRING(" \'") + VAR_TO_STRING(b) + TO_STRING("\'"))
-#define STR_OPERATOR_FAIL_EXCEPTION(operatorName, a, b, oppositeOperator) stest::TestFailException(VAR_TO_STRING(__LINE__) + TO_STRING(": ") + TO_STRING(operatorName) + TO_STRING("(") + TO_STRING(#a) + TO_STRING(", ") + TO_STRING(#b) + TO_STRING("): \'") + TO_STRING(a) + TO_STRING("\' ") + TO_STRING(oppositeOperator) + TO_STRING(" \'") + TO_STRING(b) + TO_STRING("\'"))
+#define LINE_NUMBER_STR std::to_string(__LINE__) + ": "
+#define NO_ARGS_FAIL_EXCEPTION(assertName, message) stest::TestFailException(LINE_NUMBER_STR + ": " + assertName + "(): " + message)
+#define ONE_ARGS_FAIL_EXCEPTION(assertName, a, message) stest::TestFailException(LINE_NUMBER_STR + assertName + "(" + #a + "): " + message)
+#define OPERATOR_FAIL_EXCEPTION(operatorName, a, b, oppositeOperator) stest::TestFailException(LINE_NUMBER_STR + operatorName + "(" + #a + ", " + #b + "): \'" + std::to_string(a) + "\' " + oppositeOperator + " \'" + std::to_string(b) + "\'")
+#define STR_OPERATOR_FAIL_EXCEPTION(operatorName, a, b, oppositeOperator) stest::TestFailException(LINE_NUMBER_STR + operatorName + "(" + #a + ", " + #b + "): \'" + a + "\' " + oppositeOperator + " \'" + b + "\'")
 
 #define OPERATOR_ASSERT(a, b, oppositeOperator, assertName)                 \
     if ((a)oppositeOperator(b))                                             \
@@ -73,29 +72,27 @@ namespace stest
     }
 
 #define STR_OPERATOR_ASSERT(a, b, oppositeOperator, assertName)                 \
-    if ((TO_STRING((a)))oppositeOperator(TO_STRING((b))))                       \
+    if ((std::string((a)))oppositeOperator(std::string((b))))                   \
     {                                                                           \
         throw STR_OPERATOR_FAIL_EXCEPTION(assertName, a, b, #oppositeOperator); \
     }
 
+#define BOOLEAN_ASSERT(a, name, goodvalue, badvalue)                                                      \
+    if ((a)!=goodvalue)                                                                                                \
+    {                                                                                                                       \
+        throw ONE_ARGS_FAIL_EXCEPTION(name, a, std::string("\'") + #badvalue + "\' isn't equal to \'" + #goodvalue + "\'"); \
+    }
+
 // logical asserts
-#define FAIL() throw stest::TestFailException("FAIL")
+#define FAIL() throw stest::TestFailException(LINE_NUMBER_STR + "FAIL")
 
 #define ASSERT_EQ(a, b) OPERATOR_ASSERT(a, b, !=, "ASSERT_EQ")
 
 #define ASSERT_NEQ(a, b) OPERATOR_ASSERT(a, b, ==, "ASSERT_NEQ")
 
-#define ASSERT_TRUE(a)                                                                        \
-    if (!(a))                                                                                 \
-    {                                                                                         \
-        throw ONE_ARGS_FAIL_EXCEPTION("ASSERT_TRUE", a, "\'false\' isn't equal to \'true\'"); \
-    }
+#define ASSERT_TRUE(a) BOOLEAN_ASSERT(a, "ASSERT_TRUE", true, false)
 
-#define ASSERT_FALSE(a)                                                                        \
-    if ((a))                                                                                   \
-    {                                                                                          \
-        throw ONE_ARGS_FAIL_EXCEPTION("ASSERT_FALSE", a, "\'true\' isn't equal to \'false\'"); \
-    }
+#define ASSERT_FALSE(a) BOOLEAN_ASSERT(a, "ASSERT_FALSE", false, true)
 
 #define ASSERT(a) ASSERT_TRUE(a)
 
@@ -113,10 +110,10 @@ namespace stest
 #define ASSERT_STR_NEQ(a, b) STR_OPERATOR_ASSERT(a, b, ==, "ASSERT_STR_NEQ")
 
 // float point assert
-#define ASSERT_NEAR(a, b, eps)                                                                                                                                                                                                                                                                                                                                                                   \
-    if (ABS((a) - (b)) > (eps))                                                                                                                                                                                                                                                                                                                                                                  \
-    {                                                                                                                                                                                                                                                                                                                                                                                            \
-        throw stest::TestFailException(VAR_TO_STRING(__LINE__) + TO_STRING(": ") + TO_STRING("ASSERT_NEAR") + TO_STRING("(") + TO_STRING(#a) + TO_STRING(", ") + TO_STRING(#b) + TO_STRING(", ") + TO_STRING(#eps) + TO_STRING("): ABS(") + VAR_TO_STRING(a) + TO_STRING(" - ") + VAR_TO_STRING(b) + TO_STRING(") = ") + VAR_TO_STRING(ABS((a) - (b))) + TO_STRING(" > ") + VAR_TO_STRING(eps)); \
+#define ASSERT_NEAR(a, b, eps)                                                                                                                                                                                                                    \
+    if (ABS((a) - (b)) > (eps))                                                                                                                                                                                                                   \
+    {                                                                                                                                                                                                                                             \
+        throw stest::TestFailException(LINE_NUMBER_STR + "ASSERT_NEAR" + "(" + #a + ", " + #b + ", " + #eps + "): ABS(" + std::to_string(a) + " - " + std::to_string(b) + ") = " + std::to_string(ABS((a) - (b))) + " > " + std::to_string(eps)); \
     }
 
 // some interesting asserts
@@ -169,3 +166,5 @@ namespace stest
 // TODO: line number
 // TODO: group
 // TODO: temp disable
+// TODO: format assert
+// TODO: undef macros

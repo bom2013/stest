@@ -4,7 +4,6 @@
 #include <vector>
 #include <cstdio>
 #include <string>
-#include <exception>
 
 namespace stest
 {
@@ -44,17 +43,16 @@ namespace stest
 }
 
 // some help macros for internal use
-#define ATTACH(a, b) a##b
 #define ABS(a) ((a) > 0 ? (a) : -(a))
 
 // main macros
-#define DEFINE_TEST(testName)                                           \
-    class ATTACH(testName, _SimpleTestClass) : public stest::SimpleTest \
-    {                                                                   \
-        const char *name() override { return #testName; }               \
-        void runTest() override;                                        \
-    } ATTACH(testName, _SimpleTestClass_Instance);                      \
-    void ATTACH(testName, _SimpleTestClass)::runTest()
+#define DEFINE_TEST(testName)                                   \
+    class testName##_SimpleTestClass : public stest::SimpleTest \
+    {                                                           \
+        const char *name() override { return #testName; }       \
+        void runTest() override;                                \
+    } testName##_SimpleTestClass_Instance;                      \
+    void testName##_SimpleTestClass::runTest()
 
 #define RUN_ALL_TESTS() stest::RunTests()
 
@@ -77,8 +75,8 @@ namespace stest
         throw STR_OPERATOR_FAIL_EXCEPTION(assertName, a, b, #oppositeOperator); \
     }
 
-#define BOOLEAN_ASSERT(a, name, goodvalue, badvalue)                                                      \
-    if ((a)!=goodvalue)                                                                                                \
+#define BOOLEAN_ASSERT(a, name, goodvalue, badvalue)                                                                        \
+    if ((a) != goodvalue)                                                                                                   \
     {                                                                                                                       \
         throw ONE_ARGS_FAIL_EXCEPTION(name, a, std::string("\'") + #badvalue + "\' isn't equal to \'" + #goodvalue + "\'"); \
     }
@@ -167,4 +165,3 @@ namespace stest
 // TODO: group
 // TODO: temp disable
 // TODO: format assert
-// TODO: undef macros

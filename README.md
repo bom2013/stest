@@ -3,9 +3,9 @@ Simple unit test framework for C++, inspired by [GoogleTest](https://github.com/
 Thanks to [simpletest](https://github.com/kudaba/simpletest) for showing me that it's not that complicated to implement :)
 ## How to use
 ### Quick introduction
-The idea is very simple, define a sequence of `tests` consisting of several` asserts`
+The idea is very simple, define a sequence of `tests` consisting of several `asserts`
 ### Install
-1. Download `stest.cpp` and `stest.h`
+1. Clone the repo (`git clone https://github.com/bom2013/stest.git`)
 2. Include `stest.h`
 3. Use it :)
 ### Define test
@@ -46,7 +46,8 @@ int main(int argc, char** argv)
 ```
 ### Command line arguments
 To support command line arguments use `STEST_PARSE_ARGS(argc, argv);`.  
-Currently supported arguments:
+
+Currently supported arguments:  
 | Argumets | Explanation |
 | -------- | ----------- |
 | `-v` \ `--verbose` | Will add to the program output a rich and detailed explanation of which assert failed and why |

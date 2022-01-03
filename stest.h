@@ -51,7 +51,7 @@ namespace stest
     {
         for (int i = 1; i < argc; i++)
         {
-            if (std::string(argv[i]) == "-v")
+            if (std::string(argv[i]) == "-v" || std::string(argv[i]) == "--verbose")
                 verbose = true;
         }
     }

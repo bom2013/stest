@@ -3,7 +3,7 @@
 
 void stest::addTest(SimpleTest *st)
 {
-	tests.push_back(st);
+	allTests.push_back(st);
 }
 
 stest::SimpleTest::SimpleTest()
@@ -11,7 +11,21 @@ stest::SimpleTest::SimpleTest()
 	stest::addTest(this);
 }
 
-void stest::RunTests()
+void stest::runTests()
+{
+	runTests(allTests);
+}
+
+void stest::parseArg(int argc, char **argv)
+{
+	for (int i = 1; i < argc; i++)
+	{
+		if (std::string(argv[i]) == "-v")
+			verbose = true;
+	}
+}
+
+void stest::runTests(const std::vector<SimpleTest *> &tests)
 {
 	if (tests.size() > 0)
 	{
@@ -36,12 +50,14 @@ void stest::RunTests()
 		if (fails.empty())
 			printf("All tests pass\n");
 		else
-			printf("Fail! Not all tests pass (%lu test fails(%.2f%% success rate))\n\n", fails.size(), 100-((static_cast<double>(fails.size()) / (tests.size())) * 100));
-
-		for (auto fail : fails)
+			printf("Fail! Not all tests pass (%lu test fails(%.2f%% success rate))\n\n", fails.size(), 100 - ((static_cast<double>(fails.size()) / (tests.size())) * 100));
+		if (verbose)
 		{
-			printf("------------------------------\n");
-			printf("In test \'%s\':\n\t%s\n", fail.first->name(), fail.second.what());
+			for (auto fail : fails)
+			{
+				printf("------------------------------\n");
+				printf("In test \'%s\':\n\t%s\n", fail.first->name(), fail.second.what());
+			}
 		}
 	}
 	else

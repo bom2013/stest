@@ -36,16 +36,25 @@ namespace stest
         virtual const char *name() = 0;
     };
 
+    // global setting
+    static bool verbose = false;
+
     // The global things that run all the tests
-    static std::vector<SimpleTest *> tests;
-    void RunTests();
+    static std::vector<SimpleTest *> allTests;
+    void runTests();
+    void runTests(const std::vector<SimpleTest *> &);
     void addTest(SimpleTest *);
+    void parseArg(int argc, char **argv);
 }
 
 // some help macros for internal use
 #define ABS(a) ((a) > 0 ? (a) : -(a))
 
-// main macros
+// macro for main functions
+#define RUN_ALL_TESTS() stest::runTests()
+#define INIT_STEST(argc, argv) stest::parseArg(argc, argv)
+
+// define test macro
 #define DEFINE_TEST(testName)                                   \
     class testName##_SimpleTestClass : public stest::SimpleTest \
     {                                                           \
@@ -53,8 +62,6 @@ namespace stest
         void runTest() override;                                \
     } testName##_SimpleTestClass_Instance;                      \
     void testName##_SimpleTestClass::runTest()
-
-#define RUN_ALL_TESTS() stest::RunTests()
 
 // Asserts macros
 #define LINE_NUMBER_STR std::to_string(__LINE__) + ": "
@@ -158,10 +165,3 @@ namespace stest
     }
 
 #endif
-
-// TODO: anonymos namespace?
-// TODO: Init
-// TODO: line number
-// TODO: group
-// TODO: temp disable
-// TODO: format assert

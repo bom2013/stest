@@ -34,8 +34,8 @@ DEFINE_TEST(<testName>)
 | `ASSERT_STR_NEQ(a, b)` | Assert that string a is not equal to string b | For string compare use this and not `ASSERT_NEQ` |
 | `ASSERT_NEAR(a, b, eps)` | Make sure that the distance between a and b is not greater than eps |
 | `ASSERT_EXCEPTION(code, exceptionType)` | Assert that exceptionType exception is thrown when code is run | The assert will fail if code is not throw any exception and also if it throw an exception of a different type. to assert that exception from any type is thrown use `ASSERT_EXCEPTION` |
-| ASSERT_ANY_EXCEPTION(code)` | Assert that exception(from any type) is thrown when code is run |
-| ASSERT_NO_EXCEPTION(code)` | Assert that no exception is thrown when code is run |
+| `ASSERT_ANY_EXCEPTION(code)` | Assert that exception(from any type) is thrown when code is run |
+| `ASSERT_NO_EXCEPTION(code)` | Assert that no exception is thrown when code is run |
 ### Run tests
 All you need to do to run the the tests is:
 ```c++
